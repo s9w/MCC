@@ -9,6 +9,9 @@ static std::string filename = "mcc_state.json";
 
 State read_state_from_disk() {
 	std::ifstream i(filename);
+	if (!i.good()) {
+		return State();
+	}
 	nlohmann::json j;
 	i >> j;
 	State s;
