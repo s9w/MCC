@@ -45,7 +45,7 @@ T get_sum(const std::vector<T>& vec) {
 struct OneGB {
 	OneGB() : m_data(std::make_unique<std::vector<int>>(n_1gb, 0)) {}
 	~OneGB() {}
-	OneGB(OneGB&& ref) {
+	OneGB(OneGB&& ref) noexcept {
 		m_data = ref.m_data;
 		ref.m_data = nullptr;
 	}
