@@ -59,7 +59,7 @@ struct OneGB {
 
 void check_memory(const std::vector<OneGB>& memory) {
 	std::for_each(
-		std::execution::par_unseq,
+		std::execution::seq,
 		std::cbegin(memory), 
 		std::cend(memory), 
 		[](const OneGB& one_gb) {
