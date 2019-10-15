@@ -2,15 +2,11 @@
 #include <iostream>
 #include <iomanip> // std::setprecision
 #include <memory>
+#include <optional>
 #include <string> // std::stoi
 #include <vector>
-
 #include <windows.h>
 
-
-static int gb_reserve = 3;
-constexpr size_t n_four_megabyte = 1024 * 1024;
-constexpr size_t n_1gb = 256 * n_four_megabyte;
 
 template <class T>
 constexpr double bytes_to_gb(const T byte_count) {
@@ -26,7 +22,7 @@ double get_free_physical_gb() {
 }
 
 
-int get_free_memory_gbs() {
+int get_free_memory_gbs(const int gb_reserve) {
 	const double free_memory_in_gb = get_free_physical_gb();
 	const int gb_to_fill = static_cast<int>(std::floor(free_memory_in_gb)) - gb_reserve;
 	return gb_to_fill;
@@ -41,6 +37,8 @@ T get_sum(const std::vector<T>& vec) {
 	return sum;
 }
 
+constexpr size_t n_four_megabyte = 1024 * 1024;
+constexpr size_t n_1gb = 256 * n_four_megabyte;
 
 struct OneGB {
 	OneGB() : m_data(std::make_unique<std::vector<int>>(n_1gb, 0)) {}
@@ -63,18 +61,15 @@ void check_memory(const std::vector<OneGB>& memory) {
 }
 
 
-void fill_memory(std::vector<OneGB>& memory) {
-	const int free_memory = get_free_memory_gbs();
+void fill_memory(std::vector<OneGB>& memory, const int gb_reserve) {
+	const int free_memory = get_free_memory_gbs(gb_reserve);
 	if (free_memory > 0) {
-		//std::cout << "allocating " << free_memory << "GB" << std::endl;
-		memory.reserve(get_free_memory_gbs());
+		memory.reserve(get_free_memory_gbs(gb_reserve));
 		for (int i = 0; i < free_memory; ++i)
 			memory.emplace_back();
 	}
-	if (free_memory < 0) {
-		//std::cout << "deallocating " << std::abs(free_memory) << "GB" << std::endl;
+	if (free_memory < 0)
 		memory.resize(memory.size() + free_memory);
-	}
 }
 
 
@@ -86,27 +81,28 @@ void check(const std::vector<T>& vec) {
 }
 
 
-double round_up(double value, int decimal_places) {
-	const double multiplier = std::pow(10.0, decimal_places);
-	return std::ceil(value * multiplier) / multiplier;
+std::optional<int> get_memory_reserve_from_args(int argc, char* argv[]) {
+	if (argc < 2)
+		return std::nullopt;
+	try {
+		return std::stoi(argv[1]);
+	}
+	catch (const std::invalid_argument& /*e*/) {
+		return std::nullopt;
+	}
 }
 
 
 int main(int argc, char* argv[]) {
-	// try to parse first parameter as memory reserve
-	if (argc > 1) {
-		try {
-			gb_reserve = std::stoi(argv[1]);
-		}
-		catch (const std::invalid_argument& /*e*/) {}
-	}
+	constexpr int default_memory_reserve = 2;
+	const int gb_reserve = get_memory_reserve_from_args(argc, argv).value_or(default_memory_reserve);
 
 	std::vector<OneGB> memory;
 	double gb_hours = 0.0;
 	auto t0 = std::chrono::high_resolution_clock::now();
 
 	while (true) {
-		fill_memory(memory);
+		fill_memory(memory, gb_reserve);
 		check_memory(memory);
 
 		std::cout << std::setprecision(2) << std::fixed << gb_hours << " GB-hours (currently " << memory.size() << "GB allocated)" << "\r" << std::flush;
