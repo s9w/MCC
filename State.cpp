@@ -14,6 +14,7 @@ State read_state_from_disk() {
 	}
 	nlohmann::json j;
 	i >> j;
+	i.close();
 	State s;
 	j["gb_hours"].get_to(s.gb_hours);
 	j["events"].get_to(s.events);
@@ -26,4 +27,5 @@ void write_state_to_disk(const State& state){
 	j["events"] = state.events;
 	std::ofstream o(filename);
 	o << std::setw(4) << j << std::endl;
+	o.close();
 }
