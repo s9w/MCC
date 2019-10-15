@@ -70,17 +70,18 @@ struct OneGB {
 
 
 std::optional<std::time_t> check_memory(const std::vector<OneGB>& memory) {
+	std::optional<std::time_t> event_catcher;
 	std::for_each(
 		std::execution::seq,
 		std::cbegin(memory), 
 		std::cend(memory), 
-		[](const OneGB& one_gb) {
+		[&](const OneGB& one_gb) {
 			const auto event = one_gb.check();
 			if (event.has_value())
-				return event.value();
+				event_catcher = event.value();
 		}
 	);
-	return std::nullopt;
+	return event_catcher;
 }
 
 
