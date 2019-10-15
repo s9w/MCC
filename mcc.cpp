@@ -89,8 +89,12 @@ void resize_allocated_memory(std::vector<OneGB>& memory, const int gb_reserve) {
 	const int free_memory = get_free_memory_gbs(gb_reserve);
 	if (free_memory > 0) {
 		memory.reserve(get_free_memory_gbs(gb_reserve));
-		for (int i = 0; i < free_memory; ++i)
+		
+		for (int i = 0; i < free_memory; ++i) {
+			std::cout << "\33[2K" << "\r";
+			std::cout << "allocating memory... (" << i << "/" << free_memory << "GB)" << std::flush;
 			memory.emplace_back();
+		}
 	}
 	if (free_memory < 0)
 		memory.resize(memory.size() + free_memory);
@@ -116,6 +120,13 @@ void corrupt_memory(std::vector<OneGB>& memory) {
 }
 
 
+void print_state(const State& state, const int memory_size) {
+	std::cout << "\33[2K" << "\r";
+	std::cout << std::setprecision(2) << std::fixed << state.gb_hours;
+	std::cout << " GB-hours (currently " << memory_size << "GB allocated)" << std::flush;
+}
+
+
 int main(int argc, char* argv[]) {
 	constexpr int default_memory_gb_reserve = 2;
 	const int gb_reserve = get_memory_reserve_from_args(argc, argv).value_or(default_memory_gb_reserve);
@@ -130,7 +141,7 @@ int main(int argc, char* argv[]) {
 		if (event.has_value())
 			state.events.emplace_back(event.value());
 
-		std::cout << std::setprecision(2) << std::fixed << state.gb_hours << " GB-hours (currently " << memory.size() << "GB allocated)" << "\r" << std::flush;
+		print_state(state, memory.size());
 
 		auto t1 = std::chrono::high_resolution_clock::now();
 		double secs = (std::chrono::duration_cast <std::chrono::milliseconds> (t1 - t0).count()) * 0.001;
