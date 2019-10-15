@@ -1,4 +1,6 @@
+#include <algorithm> // std::for_each
 #include <chrono>
+#include <execution> // std::execution::par
 #include <iostream>
 #include <iomanip> // std::setprecision
 #include <memory>
@@ -56,8 +58,14 @@ struct OneGB {
 
 
 void check_memory(const std::vector<OneGB>& memory) {
-	for (const OneGB& one_gb : memory)
-		one_gb.check();
+	std::for_each(
+		std::execution::par_unseq,
+		std::cbegin(memory), 
+		std::cend(memory), 
+		[](const OneGB& one_gb) {
+			one_gb.check();
+		}
+	);
 }
 
 
