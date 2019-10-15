@@ -119,7 +119,7 @@ int main(int argc, char* argv[]) {
 		double secs = (std::chrono::duration_cast <std::chrono::milliseconds> (t1 - t0).count()) * 0.001;
 		gb_hours += secs / 3600.0 * memory.size();
 		t0 = t1;
-		Sleep(1000);
+		std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
 	return 0;
 }
