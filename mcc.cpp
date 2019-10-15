@@ -81,14 +81,6 @@ void fill_memory(std::vector<OneGB>& memory, const int gb_reserve) {
 }
 
 
-template <class T>
-void check(const std::vector<T>& vec) {
-	if (get_sum(vec) != 0)
-		std::cout << "Call Hawking" << std::endl;
-	std::cout << "memory: " << get_free_physical_gb() << " GB" << "\r" << std::flush;
-}
-
-
 std::optional<int> get_memory_reserve_from_args(int argc, char* argv[]) {
 	if (argc < 2)
 		return std::nullopt;
