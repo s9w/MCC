@@ -93,6 +93,13 @@ std::optional<int> get_memory_reserve_from_args(int argc, char* argv[]) {
 }
 
 
+void corrupt_memory(std::vector<OneGB>& memory) {
+	if (rand() >100)
+		return;
+	(*(memory[3].m_data))[5] = 1;
+}
+
+
 int main(int argc, char* argv[]) {
 	constexpr int default_memory_reserve = 2;
 	const int gb_reserve = get_memory_reserve_from_args(argc, argv).value_or(default_memory_reserve);
