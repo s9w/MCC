@@ -10,7 +10,7 @@
 #include <vector>
 #include <windows.h>
 
-#include "json.hpp"
+#include "State.h"
 
 
 template <class T>
@@ -120,29 +120,24 @@ int main(int argc, char* argv[]) {
 	constexpr int default_memory_gb_reserve = 2;
 	const int gb_reserve = get_memory_reserve_from_args(argc, argv).value_or(default_memory_gb_reserve);
 
+	State state = read_state_from_disk();
 	std::vector<OneGB> memory;
-	double gb_hours = 0.0;
 	auto t0 = std::chrono::high_resolution_clock::now();
-	std::vector<time_t> events;
 
 	while (true) {
 		resize_allocated_memory(memory, gb_reserve);
 		const std::optional<std::time_t> event = check_memory(memory);
 		if (event.has_value())
-			events.emplace_back(event.value());
+			state.events.emplace_back(event.value());
 
-		std::cout << std::setprecision(2) << std::fixed << gb_hours << " GB-hours (currently " << memory.size() << "GB allocated)" << "\r" << std::flush;
+		std::cout << std::setprecision(2) << std::fixed << state.gb_hours << " GB-hours (currently " << memory.size() << "GB allocated)" << "\r" << std::flush;
 
 		auto t1 = std::chrono::high_resolution_clock::now();
 		double secs = (std::chrono::duration_cast <std::chrono::milliseconds> (t1 - t0).count()) * 0.001;
-		gb_hours += secs / 3600.0 * memory.size();
+		state.gb_hours += secs / 3600.0 * memory.size();
 		t0 = t1;
 
-		nlohmann::json j;
-		j["gb_hours"] = gb_hours;
-		j["events"] = events;
-		std::ofstream o("mcc_state.json");
-		o << std::setw(4) << j << std::endl;
+		write_state_to_disk(state);
 
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
