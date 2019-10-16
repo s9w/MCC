@@ -11,10 +11,18 @@
 #include "json.hpp"
 #pragma warning(pop)
 
-static std::string filename = "mcc_state.json";
 
-State read_state_from_disk() {
-	std::ifstream i(filename);
+namespace {
+	std::string get_filename(const std::string& computer_name) {
+		std::string filename = "mcc_state_";
+		filename += computer_name;
+		filename += ".json";
+		return filename;
+	}
+}
+
+State read_state_from_disk(const std::string& computer_name) {
+	std::ifstream i(get_filename(computer_name));
 	if (!i.good()) {
 		return State();
 	}
@@ -27,11 +35,11 @@ State read_state_from_disk() {
 	return s;
 }
 
-void write_state_to_disk(const State& state){
+void write_state_to_disk(const State& state, const std::string& computer_name){
 	nlohmann::json j;
 	j["gb_hours"] = state.gb_hours;
 	j["events"] = state.events;
-	std::ofstream o(filename);
+	std::ofstream o(get_filename(computer_name));
 	o << std::setw(4) << j << std::endl;
 	o.close();
 }

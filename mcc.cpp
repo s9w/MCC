@@ -155,6 +155,10 @@ int main(int argc, char* argv[]) {
 	system(" "); // Start VT100 support
 	set_console_cursor_visibility(false);
 
+	TCHAR computer_name[MAX_COMPUTERNAME_LENGTH + 1];
+	DWORD size = sizeof(computer_name) / sizeof(computer_name[0]);
+	GetComputerName(computer_name, &size);
+
 	if (argc == 1)
 		std::cout << "run MCC.exe --help for options" << std::endl;
 	CLI::App mcc_args{ "MCC scans for cosmic rays" };
@@ -164,7 +168,7 @@ int main(int argc, char* argv[]) {
 
 	CLI11_PARSE(mcc_args, argc, argv);
 
-	State state = read_state_from_disk();
+	State state = read_state_from_disk(computer_name);
 	std::vector<OneGB> memory;
 	auto t0 = std::chrono::high_resolution_clock::now();
 
@@ -183,7 +187,7 @@ int main(int argc, char* argv[]) {
 		state.gb_hours += secs / 3600.0 * memory.size();
 		t0 = t1;
 
-		write_state_to_disk(state);
+		write_state_to_disk(state, computer_name);
 
 		std::this_thread::sleep_for(std::chrono::seconds(1));
 	}
