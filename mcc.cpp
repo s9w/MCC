@@ -151,23 +151,28 @@ void set_console_cursor_visibility(bool visibility){
 }
 
 
-int main(int argc, char* argv[]) {
-	system(" "); // Start VT100 support
-	set_console_cursor_visibility(false);
-
+std::string get_computer_name() {
 	TCHAR computer_name[MAX_COMPUTERNAME_LENGTH + 1];
 	DWORD size = sizeof(computer_name) / sizeof(computer_name[0]);
 	GetComputerName(computer_name, &size);
+	return computer_name;
+}
+
+
+int main(int argc, char* argv[]) {
+	system(" "); // Start VT100 support
+	set_console_cursor_visibility(false);
 
 	if (argc == 1)
 		std::cout << "run MCC.exe --help for options" << std::endl;
 	CLI::App mcc_args{ "MCC scans for cosmic rays" };
 
 	int gb_reserve = 3;
-	mcc_args.add_option("-r,--reserve", gb_reserve, "Number if GB to keep in reserve. Default is 3");
+	mcc_args.add_option("-r,--reserve", gb_reserve, "Number of GB to keep in reserve. Default is 3");
 
 	CLI11_PARSE(mcc_args, argc, argv);
 
+	const std::string computer_name = get_computer_name();
 	State state = read_state_from_disk(computer_name);
 	std::vector<OneGB> memory;
 	auto t0 = std::chrono::high_resolution_clock::now();
