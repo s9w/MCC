@@ -118,8 +118,20 @@ void print_state(const State& state, const int memory_size) {
 }
 
 
+/// <summary>Self-explanatory, but doesn't seem to work on powershell</summary>
+void set_console_cursor_visibility(bool visibility){
+	HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
+	CONSOLE_CURSOR_INFO     cursorInfo;
+	GetConsoleCursorInfo(out, &cursorInfo);
+	cursorInfo.bVisible = visibility; // set the cursor visibility
+	cursorInfo.dwSize = 100;
+	SetConsoleCursorInfo(out, &cursorInfo);
+}
+
+
 int main(int argc, char* argv[]) {
 	system(" "); // Start VT100 support
+	set_console_cursor_visibility(false);
 
 	if (argc == 1)
 		std::cout << "run MCC.exe --help for options" << std::endl;
