@@ -89,6 +89,7 @@
     <ClCompile Include="State.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CLI11.hpp" />
     <ClInclude Include="json.hpp" />
     <ClInclude Include="State.h" />
   </ItemGroup>

@@ -8,6 +8,8 @@
 #include <string> // std::stoi
 #include <windows.h>
 
+#include "CLI11.hpp"
+
 #include "State.h"
 
 #define CSI "\x1b["
@@ -101,24 +103,6 @@ void resize_allocated_memory(std::vector<OneGB>& memory, const int gb_reserve) {
 }
 
 
-std::optional<int> get_memory_reserve_from_args(int argc, char* argv[]) {
-	if (argc < 2)
-		return std::nullopt;
-	try {
-		return std::stoi(argv[1]);
-	}
-	catch (const std::invalid_argument& /*e*/) {
-		return std::nullopt;
-	}
-}
-
-
-int get_memory_gb_reserve(int argc, char* argv[]) {
-	constexpr int default_memory_gb_reserve = 2;
-	return get_memory_reserve_from_args(argc, argv).value_or(default_memory_gb_reserve);
-}
-
-
 void corrupt_memory(std::vector<OneGB>& memory) {
 	if (rand() >100)
 		return;
@@ -137,7 +121,14 @@ void print_state(const State& state, const int memory_size) {
 int main(int argc, char* argv[]) {
 	system(" "); // Start VT100 support
 
-	const int gb_reserve = get_memory_gb_reserve(argc, argv);
+	if (argc == 1)
+		std::cout << "run MCC.exe --help for options" << std::endl;
+	CLI::App mcc_args{ "MCC scans for cosmic rays" };
+
+	int gb_reserve = 3;
+	mcc_args.add_option("-r,--reserve", gb_reserve, "Number if GB to keep in reserve. Default is 3");
+
+	CLI11_PARSE(mcc_args, argc, argv);
 
 	State state = read_state_from_disk();
 	std::vector<OneGB> memory;
