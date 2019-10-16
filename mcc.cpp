@@ -41,6 +41,7 @@ int get_free_memory_gbs(const int gb_reserve) {
 
 
 template <class T>
+[[nodiscard]]
 T get_sum(const std::vector<T>& vec) {
 	T sum = 0;
 	for (const T e : vec)
@@ -78,6 +79,7 @@ struct OneGB {
 };
 
 
+[[nodiscard]]
 std::optional<std::time_t> check_memory(const std::vector<OneGB>& memory) {
 	std::optional<std::time_t> event_catcher;
 	std::for_each(
