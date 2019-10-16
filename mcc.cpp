@@ -10,6 +10,7 @@
 
 #include "State.h"
 
+#define CSI "\x1b["
 
 template <class T>
 constexpr double bytes_to_gb(const T byte_count) {
@@ -89,8 +90,9 @@ void resize_allocated_memory(std::vector<OneGB>& memory, const int gb_reserve) {
 		memory.reserve(get_free_memory_gbs(gb_reserve));
 		
 		for (int i = 0; i < free_memory; ++i) {
-			std::cout << "\33[2K" << "\r";
-			std::cout << "allocating memory... (" << i << "/" << free_memory << "GB)" << std::flush;
+			printf(CSI "K"); // clear the line
+			std::cout << "\r";
+			std::cout << "allocating memory... (" << i+1 << "/" << free_memory << "GB)" << std::flush;
 			memory.emplace_back();
 		}
 	}
@@ -125,13 +127,16 @@ void corrupt_memory(std::vector<OneGB>& memory) {
 
 
 void print_state(const State& state, const int memory_size) {
-	std::cout << "\33[2K" << "\r";
+	printf(CSI "K"); // clear the line
+	std::cout << "\r";
 	std::cout << std::setprecision(2) << std::fixed << state.gb_hours;
 	std::cout << " GB-hours (currently " << memory_size << "GB allocated)" << std::flush;
 }
 
 
 int main(int argc, char* argv[]) {
+	system(" "); // Start VT100 support
+
 	const int gb_reserve = get_memory_gb_reserve(argc, argv);
 
 	State state = read_state_from_disk();
