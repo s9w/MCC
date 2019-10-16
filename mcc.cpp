@@ -142,7 +142,7 @@ int main(int argc, char* argv[]) {
 		resize_allocated_memory(memory, gb_reserve);
 		const std::optional<std::time_t> event = check_memory(memory);
 		if (event.has_value())
-			state.events.emplace_back(event.value());
+			state.events.emplace_back(event.value(), state.gb_hours);
 
 		print_state(state, memory.size());
 

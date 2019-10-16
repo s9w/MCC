@@ -8,7 +8,7 @@
 
 struct State {
 	double gb_hours = 0;
-	std::vector<std::time_t> events = {};
+	std::vector<std::pair<std::time_t, double>> events = {};
 };
 
 State read_state_from_disk();
