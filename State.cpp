@@ -3,7 +3,12 @@
 #include <fstream>
 #include <iomanip> // std::setw
 
+#pragma warning(push) // supressing warnings in external code
+#pragma warning( disable : 26451 )
+#pragma warning( disable : 26495 )
+#pragma warning( disable : 28020 )
 #include "json.hpp"
+#pragma warning(pop)
 
 static std::string filename = "mcc_state.json";
 

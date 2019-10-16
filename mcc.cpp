@@ -8,7 +8,12 @@
 #include <string> // std::stoi
 #include <windows.h>
 
+#pragma warning(push) // supressing warnings in external code
+#pragma warning( disable : 26444 )
+#pragma warning( disable : 26451 )
+#pragma warning( disable : 26812 )
 #include "CLI11.hpp"
+#pragma warning(pop)
 
 #include "State.h"
 
