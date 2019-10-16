@@ -66,6 +66,9 @@ struct OneGB {
 		}
 		return std::nullopt;
 	}
+	void fix() {
+		std::fill(std::begin(*m_data), std::end(*m_data), 0);
+	}
 	std::shared_ptr<std::vector<int>> m_data;
 };
 
@@ -83,6 +86,18 @@ std::optional<std::time_t> check_memory(const std::vector<OneGB>& memory) {
 		}
 	);
 	return event_catcher;
+}
+
+
+void fix_memory(std::vector<OneGB>& memory) {
+	std::for_each(
+		std::execution::seq,
+		std::begin(memory),
+		std::end(memory),
+		[&](OneGB& one_gb) {
+			one_gb.fix();
+		}
+	);
 }
 
 
@@ -106,7 +121,7 @@ void resize_allocated_memory(std::vector<OneGB>& memory, const int gb_reserve) {
 void corrupt_memory(std::vector<OneGB>& memory) {
 	if (rand() >100)
 		return;
-	(*(memory[3].m_data))[5] = 1;
+	(*(memory[0].m_data))[0] = 1;
 }
 
 
@@ -149,8 +164,10 @@ int main(int argc, char* argv[]) {
 	while (true) {
 		resize_allocated_memory(memory, gb_reserve);
 		const std::optional<std::time_t> event = check_memory(memory);
-		if (event.has_value())
+		if (event.has_value()) {
 			state.events.emplace_back(event.value(), state.gb_hours);
+			fix_memory(memory);
+		}
 
 		print_state(state, memory.size());
 
